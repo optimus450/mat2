@@ -1,0 +1,1129 @@
+A2Q1
+import numpy as np
+import matplotlib.pyplot as plt
+import sympy as sp
+from sympy import symbols, sin, cos, tan, diff
+#a)i)
+print("First parametric equation")
+t1=2
+x1,y1,z1=np.log(t1),np.exp(-t1),t1^3
+dx1,dy1,dz1=1/t1,-np.exp(-t1),3*t1^2
+print(f'x={x1}+{dx1}t')
+print(f'y={y1}+{dy1}t')
+print(f'z={z1}+{dz1}t')
+#ii)
+print("second parametric equation")
+t1=1/3
+x1,y1,z1=2*np.cos(np.pi*t1),2*np.sin(np.pi*t1),3*t1
+dx1,dy1,dz1=-2*np.pi*np.sin(np.pi*t1),2*np.pi*np.cos(np.pi*t1),3
+print(f'x={x1}+{dx1}t')
+print(f'y={y1}+{dy1}t')
+print(f'z={z1}+{dz1}t')
+#(b)
+n1=np.array([3,-6,-2])
+n2=np.array([2,1,-2])
+direction_vector=np.cross(n1,n2)
+print("A vector parallel to the line inetersection:",direction_vector)
+# (c)
+#finding v and a as a function of theta
+theta = symbols('theta')
+r = sp.Matrix([3*theta, sin(theta), theta**2])
+v = r.diff(theta)
+a = v.diff(theta)
+print("velocity:")
+sp.pprint(v)
+print("acceleration:")
+sp.pprint(a)
+#plotting theta vs t
+t = sp.symbols('t')
+r = sp.Matrix([3*t, sp.sin(t), t**2])
+v = r.diff(t)      
+a = v.diff(t)        
+v_dot_a = v.dot(a)
+v_mag = sp.sqrt(v.dot(v))
+a_mag = sp.sqrt(a.dot(a))
+cos_theta = v_dot_a / (v_mag * a_mag)  #angle=cos^(-1)((v.a)/|v||a|)
+theta_expr = sp.acos(cos_theta)  # θ(t) in radians
+theta_func = sp.lambdify(t, theta_expr, modules='numpy')#Convert to a numerical function
+t_vals = np.linspace(-10, 10, 1000)
+theta_vals = theta_func(t_vals)
+
+plt.figure(figsize=(10, 5))
+plt.plot(t_vals, theta_vals, color='purple')
+plt.xlabel('t')
+plt.ylabel('θ(t) [radians]')
+plt.title('Angle θ(t) Between Velocity and Acceleration Vectors')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+A2Q2(a)
+
+import numpy as np
+import matplotlib.pyplot as plt
+import sympy as sp
+from sympy import symbols,sin,cos,diff
+
+t=symbols('t')
+r=sp.Matrix([5*sp.cos(t),4*sp.sin(t)])
+r_prime=r.diff(t)
+tangent1 = r_prime.subs(t, np.pi/4)
+tangent2 = r_prime.subs(t, np.pi)
+print('First tangent:')
+sp.pprint(tangent1)
+print('second tangent:')
+sp.pprint(tangent2)
+
+#plotting
+t_val=np.linspace(0,2*np.pi,100)
+x_val=5*np.cos(t_val)
+y_val=4*np.sin(t_val)
+
+r_func=sp.lambdify(t,r,modules='numpy')
+t1=np.pi/4
+t2=np.pi
+r1=r_func(t1)
+r2=r_func(t2)
+r_prime_func=sp.lambdify(t,r_prime,modules='numpy')
+tangent1=r_prime_func(t1)
+tangent2=r_prime_func(t2)
+
+plt.plot(x_val,y_val)
+plt.quiver(0,0,r1[0],r1[1],angles='xy',scale_units='xy',scale=1,color='r')
+plt.quiver(0,0,r2[0],r2[1],angles='xy',scale_units='xy',scale=1,color='g')
+plt.quiver(r1[0],r1[1],tangent1[0],tangent1[1],angles='xy',scale_units='xy',scale=1,color='r')
+plt.quiver(r2[0],r2[1],tangent2[0],tangent2[1],angles='xy',scale_units='xy',scale=1,color='g')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid(True)
+plt.show()
+
+A2Q2(b)
+
+import numpy as np
+import sympy as sp
+import matplotlib.pyplot as plt
+
+# Symbolic definitions
+s, t = sp.symbols('s t')
+r_t = sp.Matrix([sp.cos(t), sp.sin(t), t])
+r_prime = r_t.diff(t)
+r_prime_norm = sp.sqrt(sum(comp**2 for comp in r_prime))  # sqrt(2)
+s_expr = sp.integrate(r_prime_norm, (t, 0, t))            # s = sqrt(2)*t
+t_expr = sp.solve(sp.Eq(s, s_expr), t)[0]          # t = s / sqrt(2)
+
+# Arc length parameterization
+r_s = r_t.subs(t, t_expr)
+r_s = sp.simplify(r_s)
+
+print("Arc length parameterization r(s):")
+sp.pprint(r_s)
+
+# Evaluate start and end point
+s_final = 10
+start = r_t.subs(t, 0)
+end = r_s.subs(s, s_final)
+# Numerical helix curve
+t_vals = np.linspace(0, float(end[2]) + 2, 200)
+x_vals, y_vals, z_vals = np.cos(t_vals), np.sin(t_vals), t_vals
+
+# Plotting
+fig = plt.figure(figsize=(8, 8))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(x_vals, y_vals, z_vals, label='Helix')
+# Start and end points
+ax.scatter(float(start[0]), float(start[1]), float(start[2]), color='r', s=100, label='Start (1,0,0)')
+ax.scatter(float(end[0]), float(end[1]), float(end[2]), color='g', s=100, label='End after s=10')
+# Labels
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+ax.legend()
+plt.title('Helix with Arc Length Parameterization')
+plt.show()
+
+# Final position
+print("Final position after walking 10 units:")
+sp.pprint(end)
+
+A2Q3(a)
+
+import numpy as np
+import sympy as sp
+from sympy import symbols,sin,cos,diff,exp
+import matplotlib.pyplot as plt
+
+t= symbols('t')
+r1 = sp.Matrix([sp.exp(t), sp.exp(t) * sp.cos(t), sp.exp(t) * sp.sin(t)])
+r2 = sp.Matrix([2 * sp.cos(t), 3 * sp.sin(t), 0])
+
+def compute_frenet_serret(r):
+    r_prime = r.diff(t)
+    r_pprime = r_prime.diff(t)
+    r_ppprime = r_pprime.diff(t)
+    norm_rp=sp.sqrt(r_prime.dot(r_prime))
+    #norm_rpp=sp.sqrt(r_pprime.dot(r_pprime))
+    #norm_rppp=sp.sqrt(r_ppprime.dot(r_ppprime))
+    T = r_prime / norm_rp        #T=r'(t)/|r'(t)|
+    T_prime=T.diff(t)
+    norm_Tp=sp.sqrt(T_prime.dot(T_prime))
+    N = T_prime / norm_Tp         #N=T'(t)/|T'(t)|
+    B = T.cross(N)                       #B(t)=T(t)*N(t)
+    kappa=norm_Tp/norm_rp  #K(t)=|T'(t)|/|r'(t)|
+    crossing=r_prime.cross(r_pprime)
+    norm_crossing=(sp.sqrt(crossing.dot(crossing)))**2
+    tau = crossing.dot(r_ppprime) / norm_crossing
+    #Taw=(r'*r'').r'''/|r'*r''|^2
+    return T, N, B, kappa, tau
+
+def results( Name,T, N, B, kappa, tau):
+    
+    print('Tangent Vector T(t):')
+    sp.pprint(T)
+    print('\nNormal Vector N(t):')
+    sp.pprint(N)
+    print('\nBinormal Vector B(t):')
+    sp.pprint(B)
+    print('\nCurvature κ(t):')
+    sp.pprint(kappa)
+    print('\nTorsion τ(t):')
+    sp.pprint(tau)
+    
+
+# Compute for both curves
+T1, N1, B1, kappa1, tau1 = compute_frenet_serret(r1)
+T2, N2, B2, kappa2, tau2 = compute_frenet_serret(r2)
+
+# Display results using the function
+
+results('(i) Curve 1: Exponential Helix', T1, N1, B1, kappa1, tau1)
+results('(ii) Curve 1: Exponential Helix', T2, N2, B2, kappa2, tau2)
+
+##plotting
+t1=np.linspace(0,2*np.pi,100)
+k1_np=sp.lambdify(t,kappa1,'numpy')
+k2_np=sp.lambdify(t,kappa2,'numpy')
+k1=k1_np(t1)
+k2=k2_np(t1)
+plt.plot(t1,k1,k2)
+plt.xlabel('t')
+plt.ylabel('Curvature')
+plt.title('Curvature vs t')
+plt.show()
+
+A2Q3(b)
+
+import sympy as sp
+from sympy import symbols,diff,sin,cos
+
+x, y = sp.symbols('x y')
+f = y**2 * sp.cos(x - y)
+# Compute partial derivatives
+fx = sp.diff (f,x)
+fy = sp.diff(f, y)
+fxx = sp.diff(fx, x)
+fyy = sp.diff(fy, y)
+fxy = sp.diff(fx, y)
+fyx = sp.diff(fy, x)
+
+print("\nSecond derivatives:")
+print("f_xx =")
+sp.pprint(fxx)
+print("\nf_yy =")
+sp.pprint(fyy)
+
+laplacian = sp.simplify(fxx + fyy)
+print("\nLaplacian f_xx + f_yy =")
+sp.pprint(laplacian)
+
+# Check Laplace's equation
+if laplacian == 0:
+    print("\nf satisfies Laplace's equation.")
+else:
+    print("\nf does not satisfy Laplace's equation.")
+
+# Check Cauchy-Riemann (only makes sense if f is complex, still we check formally)
+u = f
+v = 0  # Since f is purely real
+ux = sp.diff(u, x)
+uy = sp.diff(u, y)
+vx = sp.diff(v, x)
+vy = sp.diff(v, y)
+
+print("\nCauchy-Riemann equations check:")
+cr1 = sp.simplify(ux - vy)
+cr2 = sp.simplify(uy + vx)
+
+if cr1 == 0 and cr2 == 0:
+    print("Cauchy-Riemann equations are satisfied.")
+else:
+    print("Cauchy-Riemann equations are not satisfied.")
+#part 3
+print("\nf_xy =")
+sp.pprint(fxy)
+print("\nf_yx =")
+sp.pprint(fyx)
+
+if sp.simplify(fxy - fyx) == 0:
+    print("\nMixed partial derivatives are equal: f_xy = f_yx")
+else:
+    print("\nMixed partial derivatives are not equal.")
+
+A2Q3(c)
+
+import sympy as sp
+import numpy as np
+
+t,x,y,z,X,Y,Z=sp.symbols('t x y z X Y Z')
+#chain rule: dw/dt=dw/dx*dx/dt+dw/dy*dy/dt+dw/dz*dz/dt
+w=sp.sqrt(X**2+Y**2+Z**2)
+wx=w.diff(X)
+wy=w.diff(Y)
+wz=w.diff(Z)
+
+x=sp.cos(t)
+y=sp.sin(t)
+z=sp.tan(t)
+xt=x.diff(t)
+yt=y.diff(t)
+zt=z.diff(t)
+
+wx_t = wx.subs({X: x, Y: y, Z: z})
+wy_t = wy.subs({X: x, Y: y, Z: z})
+wz_t = wz.subs({X: x, Y: y, Z: z})
+
+chain_formula=wx_t*xt+wy_t*yt+wz_t*zt
+print('dw/dt:\n')
+sp.pprint(chain_formula)
+chain_formula_np=sp.lambdify(t,chain_formula,'numpy')
+derivative=chain_formula_np(np.pi/4)
+print(' dw/dt:',derivative)
+
+A2Q3(d)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import symbols,sin,cos,tan,diff
+
+x, y = symbols('x y')
+T = 3 * x**2 * y
+# Compute gradient
+grad_T = sp.Matrix([diff(T, x), diff(T, y)])
+# Evaluate gradient at (-1, 3/2)
+grad_t0 = grad_T.subs({x: -1, y: 3/2})
+print("Gradient at (-1, 3/2):", grad_t0)
+
+# Direction vector (2D!)
+v0 = sp.Matrix([-1, -1/2])
+v0 = v0 / v0.norm()  # normalize it
+# Compute directional derivative at point
+dir_deriv_at_point = grad_t0.dot(v0)
+print("Directional derivative at (-1, 3/2) in direction (-1, -1/2):", dir_deriv_at_point)
+
+#Plotting
+# General directional derivative expression
+D_derivative = grad_T.dot(v0)
+D_derivative_np = sp.lambdify((x, y), D_derivative, 'numpy')# Convert to numpy function
+x_vals = np.linspace(-2, 0, 100)
+y_vals = np.linspace(0, 2, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+D_vals = D_derivative_np(X, Y)
+
+#3D surface plot
+fig = plt.figure(figsize=(12, 6))
+ax = fig.add_subplot(121, projection='3d')
+ax.plot_surface(X, Y, D_vals, cmap='viridis')
+ax.set_title('Directional Derivative Surface')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('Value')
+
+# Contour plot
+ax2 = fig.add_subplot(122)
+contour = ax2.contourf(X, Y, D_vals, cmap='viridis')
+plt.colorbar(contour, ax=ax2)
+ax2.set_title('Directional Derivative Contour')
+ax2.set_xlabel('x')
+ax2.set_ylabel('y')
+plt.tight_layout()
+plt.show()
+
+A2Q4(a)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-8, 8, 400)
+y = np.linspace(-8, 8, 400)
+X, Y = np.meshgrid(x, y)
+levels = [1, 4, 9, 16, 25, 36]
+
+# i)
+Z1 = 4 * X**2 + Y**2
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+cont1 = plt.contour(X, Y, Z1, levels=levels, cmap='viridis')
+plt.clabel(cont1, inline=True, fontsize=8)  # Show level values on curves
+plt.colorbar(cont1)
+plt.title(r'Contour Plot of $f(x,y)=4x^2 + y^2$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axis('equal')
+
+# ii) f(x, y, z) = z^2 - x^2 - y^2 → x^2 + y^2 = z^2 - k (fix z^2)
+plt.subplot(1, 2, 2)
+z_fixed = 7  # Let's fix z = 7 ⇒ z^2 = 49
+z2_value = z_fixed**2
+# Plot level curves for each k
+for k in levels:
+    rhs = z2_value - k
+    if rhs > 0:
+        radius = np.sqrt(rhs)# Circle: x^2 + y^2 = r^2
+        Z2 = X**2 + Y**2
+        cs = plt.contour(X, Y, Z2, levels=[rhs], colors='black')#cs=contour surface
+        plt.clabel(cs, fmt={rhs: f'k={k}'}, fontsize=8)
+
+plt.title(r'Level Curves of $f(x,y,z) = z^2 - x^2 - y^2$ (with $z=7$)')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axis('equal')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+A2Q4b(i)
+
+import numpy as np
+import matplotlib.pyplot as plt
+def f(x,y):
+    return y**2-2*y*np.cos(x)
+x=np.linspace(1,7,100)
+y=np.linspace(-5,5,100)
+X,Y=np.meshgrid(x,y)
+Z=f(X,Y)
+fig=plt.figure()
+ax=plt.axes(projection='3d')
+ax.plot_surface(X,Y,Z,cmap='viridis')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('f(x,y)')
+ax.set_title('3D plot of $f(x,y)=y^2-2*y*cos(x)$')
+plt.show()
+
+A2Q4b(ii)
+
+import numpy as np
+import matplotlib.pyplot as plt
+def f(x,y):
+    return np.abs(np.sin(x)*np.cos(y))
+x=np.linspace(0,2*np.pi,100)
+y=np.linspace(0,2*np.pi,100)
+X,Y=np.meshgrid(x,y)
+Z=f(X,Y)
+fig=plt.figure()
+ax=plt.axes(projection='3d')
+ax.plot_surface(X,Y,Z,cmap='viridis')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('f(x,y)')
+ax.set_title('3D plot of $f(x,y)=|sin(x)cos(y)|$')
+plt.show()
+
+A2Q4c(i)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y = sp.symbols('x y')
+f = 4*x*y - x**4 - y**4
+fx = sp.diff(f, x)
+fy = sp.diff(f, y)
+fxx = sp.diff(fx, x)
+fyy = sp.diff(fy, y)
+fxy = sp.diff(fx, y)
+# Critical points
+cp = sp.solve([fx, fy], [x, y])
+# Discriminant
+D_expr = fxx*fyy - fxy**2
+# Classification
+saddle = []
+maxima = []
+minimum=[]
+for i in cp:
+    x_val, y_val = i
+    # Skip complex solutions
+    if sp.im(x_val) != 0 or sp.im(y_val) != 0:
+        continue
+
+    D_val = D_expr.subs({x: x_val, y: y_val})
+    fxx_val = fxx.subs({x: x_val, y: y_val})
+
+    if D_val < 0:
+        saddle.append(i)
+    elif D_val > 0 and fxx_val < 0:
+        maxima.append(i)
+    elif D_val>0 and fxx_val>0:
+        minimum.append(i)
+
+print("Saddle Points:", saddle)
+print("Local Maxima:", maxima)
+print("Local Minimum:", minimum)
+
+# Plotting the surface
+f_num = sp.lambdify((x, y), f, 'numpy')#converting symbolic to numeric
+x_vals = np.linspace(-2, 2, 100)
+y_vals = np.linspace(-2, 2, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+Z = f_num(X, Y)
+
+fig = plt.figure(figsize=(8,8))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(X, Y,Z)
+
+# Mark critical points  #(x,y)=pt(0,1)
+# Mark critical points  #(x,y)=pt(0,1)
+saddle=([0,0])
+maxima=([-1,-1])
+ax.scatter(*saddle,color='r',label='saddle point')
+ax.scatter(*maxima,color='g',label='local max')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('f(x, y)')
+plt.title("Surface plot of f(x, y) = 4xy - x⁴ - y⁴")
+plt.legend()
+plt.show()
+
+A2Q4c(ii)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y = sp.symbols('x y')
+f_sym = 4*x**2*sp.exp(y) -2*x**4 - sp.exp(4*y)
+fx = sp.diff(f_sym, x)
+fy = sp.diff(f_sym, y)
+fxx = sp.diff(fx, x)
+fyy = sp.diff(fy, y)
+fxy = sp.diff(fx, y)
+# Critical points
+cp = sp.solve([fx, fy], [x, y])
+
+# Discriminant
+D_expr = fxx*fyy - fxy**2
+# Classification
+saddle = []
+maxima = []
+minimum=[]
+for i in cp:
+    x_val, y_val = i
+    # Skip complex solutions
+    if sp.im(x_val) != 0 or sp.im(y_val) != 0:
+        continue
+
+    D_val = D_expr.subs({x: x_val, y: y_val})
+    fxx_val = fxx.subs({x: x_val, y: y_val})
+
+    if D_val < 0:
+        saddle.append(i)
+    elif D_val > 0 and fxx_val < 0:
+        maxima.append(i)
+    elif D_val>0 and fxx_val>0:
+        minimum.append(i)
+
+print("Saddle Points:", saddle)
+print("Local Maxima:", maxima)
+print("Local Minimum:", minimum)
+
+# Plotting the surface
+f_num = sp.lambdify((x, y), f_sym, 'numpy')#converting symbolic to numeric
+x_vals = np.linspace(-2, 2, 100)
+y_vals = np.linspace(-2, 2, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+Z = f_num(X, Y)
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(X, Y, Z,cmap='viridis')
+
+
+maxima=([-1,0],[1,0])
+
+ax.scatter(*maxima,color='g',label='local max')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('f(x, y)')
+plt.title("Surface plot of f(x, y) = 4x^2*exp(y)- 2*x⁴ - exp(4*y)")
+plt.legend()
+plt.show()
+
+
+
+A2Q5(a)
+
+import numpy as np
+import sympy as sp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+x,y,z=sp.symbols('x y z')
+ellipsoid_eq=x**2+4*y**2+z**2-18
+#(i)
+point=(1,2,1)
+grad_f=[sp.diff(ellipsoid_eq,var) for var in (x,y,z)]
+normal_vector=[expr.subs({x:point[0],y:point[1],z:point[2]}) for expr in grad_f]
+tangent_plane_eq=normal_vector[0]*(x-point[0])+normal_vector[1]*(y-point[1])+normal_vector[2]*(z-point[2])
+print("Equation of tangent plane:",tangent_plane_eq)
+#(ii)
+t=sp.symbols('t')
+normal_line=[point[i]+t*normal_vector[i] for i in range(3)]
+print("normal line:",normal_line)
+#(iii)
+angle=sp.acos(abs(normal_vector[2])/sp.sqrt(sum(n**2 for n in normal_vector)))
+angle_deg=sp.deg(angle)
+print("Angle:",angle_deg.evalf())
+#(iv)
+fig=plt.figure(figsize=(8,6))
+ax=fig.add_subplot(111,projection='3d')
+u=np.linspace(0,2*np.pi,50)
+v=np.linspace(0,np.pi,50)          #x^2/(a^2)+y^2/(b^2)+z^2/(c^2)=1
+X=np.outer(np.cos(u),np.sin(v))*np.sqrt(18)       #x=a*cos(u)sin(v)
+Y=np.outer(np.sin(u),np.sin(v))*np.sqrt(18)/2     #y=b*sin(u)*sin(v)
+Z=np.outer(np.ones_like(u),np.cos(v))*np.sqrt(18) #z=c*cos(v)
+ax.plot(X,Y,Z)
+#tangent plane
+x_t=np.linspace(-5,5,10)
+y_t=np.linspace(-5,5,10)
+X_t,Y_t=np.meshgrid(x_t,y_t)
+Z_t=(normal_vector[0]*(X_t-point[0])+normal_vector[1]*(Y_t-point[1]))/(-normal_vector[2])+point[2]
+ax.plot_surface(X_t,Y_t,Z_t,color='r')
+#normal line
+t_vals=np.linspace(-5,5,10)
+X_n=point[0]+t_vals*normal_vector[0]
+Y_n=point[1]+t_vals*normal_vector[1]
+Z_n=point[2]+t_vals*normal_vector[2]
+ax.plot(X_n,Y_n,Z_n,'k--',label="Normal Line")
+ax.scatter(*point,color='r',s=100,label='Point(1,2,1)')
+ax.set_xlabel('X')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+plt.show()
+
+A2Q5(b)
+
+import numpy as np
+import sympy as sp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+x, y, z, lamb = sp.symbols('x y z lamb')
+T = 8*x**2 + 4*y*z - 16*z + 600
+g = 4*x**2 + y**2 + 4*z**2 - 16
+grad_T = sp.Matrix([sp.diff(T, var) for var in (x, y, z)])
+grad_g = sp.Matrix([sp.diff(g, var) for var in (x, y, z)])
+equations = [grad_T[i] - lamb * grad_g[i] for i in range(3)] + [g]
+solutions = sp.solve(equations, (x, y, z, lamb), dict=True)
+max_temp = -np.inf
+hottest_point = None
+for sol in solutions:
+    temp = T.subs(sol)
+    if temp > max_temp:
+        max_temp = temp
+        hottest_point = sol
+
+print("Hottest Point:", hottest_point)
+print("Maximum Temperature:", max_temp)
+
+# Check constraint  #no need for this part to show
+check = g.subs(hottest_point)
+print("Constraint check (should be 0):", check.simplify())
+print("Is on surface?", np.isclose(float(check), 0))
+
+#Plotting
+hottest_x = float(hottest_point[x])
+hottest_y = float(hottest_point[y])
+hottest_z = float(hottest_point[z])
+# Ellipsoid surface
+u = np.linspace(0, 2*np.pi, 50)
+v = np.linspace(0, np.pi, 25)
+U, V = np.meshgrid(u, v)
+# Correct parametric ellipsoid (a=2, b=4, c=2)
+X = 2 * np.cos(U) * np.sin(V)
+Y = 4 * np.sin(U) * np.sin(V)
+Z = 2 * np.cos(V)
+# Plot
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(X, Y, Z, color='lightblue', alpha=0.7)
+ax.scatter(hottest_x, hottest_y, hottest_z, color='red', s=100, label='Hottest Point')
+
+ax.set_xlabel('X-axis')
+ax.set_ylabel('Y-axis')
+ax.set_zlabel('Z-axis')
+ax.set_title('Space Probe Temperature Analysis')
+ax.legend()
+plt.show()
+
+A2Q6(a)
+import sympy as sp #need verificatin
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.integrate import tplquad, dblquad
+
+x, y, z, r, theta = sp.symbols('x y z r theta')
+# (a) Triple Integral
+f1 = lambda z, y, x: x * np.exp(-y) * np.cos(z)
+sol1 = tplquad(f1, 0, 1, lambda x: 0, lambda x: 1 - x**2, lambda x, y: 3, lambda x, y: 4 - x**2 - y**2)[0]
+print("Value of the first integral (numerical):", sol1)
+# (b) Double Integral
+f2 = lambda y, x: (x * y) / np.sqrt(x**2 + y**2 + 1)
+sol2 = dblquad(f2, 0, 1, lambda x: 0, lambda x: 1)[0]
+print("Value of the second integral (numerical):", sol2)
+# ------------------ Visualization ------------------
+fig = plt.figure(figsize=(12, 5))
+ax1 = fig.add_subplot(121, projection='3d')
+X = np.linspace(0, 1, 50)
+Y = np.linspace(0, 1, 50)
+X, Y = np.meshgrid(X, Y)
+Z_upper = 4 - X**2 - Y**2
+Z_lower = 3
+mask = Y <= 1 - X**2# Make sure we restrict Y to be <= 1 - X^2
+X_masked = np.ma.masked_where(~mask, X)#You create a valid domain region defined by y≤1−x^2, and mask out (hide) all points outside this region from X and Y.
+Y_masked = np.ma.masked_where(~mask, Y)
+Z_val = X_masked * np.exp(-Y_masked) * np.cos(Z_lower)  # Just show integrand at z=3
+surf = ax1.plot_surface(X_masked, Y_masked, Z_val, cmap='viridis', edgecolor='none')
+ax1.set_title("Integrand of Triple Integral at z=3")
+ax1.set_xlabel("x")
+ax1.set_ylabel("y")
+ax1.set_zlabel("f(x,y,3)")
+fig.colorbar(surf, ax=ax1, shrink=0.5)
+# 2nd subplot: Double integral surface
+ax2 = fig.add_subplot(122, projection='3d')
+X2 = np.linspace(0, 1, 50)
+Y2 = np.linspace(0, 1, 50)
+X2, Y2 = np.meshgrid(X2, Y2)
+Z2 = (X2 * Y2) / np.sqrt(X2**2 + Y2**2 + 1)
+surf2 = ax2.plot_surface(X2, Y2, Z2, cmap='plasma', edgecolor='none')
+ax2.set_title("Integrand of Double Integral")
+ax2.set_xlabel("x")
+ax2.set_ylabel("y")
+ax2.set_zlabel("f(x,y)")
+fig.colorbar(surf2, ax=ax2, shrink=0.5)
+plt.tight_layout()
+plt.show()
+
+A2Q6(b)
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.integrate import dblquad
+
+x, y = sp.symbols('x y')
+z = sp.sqrt(4 - x**2)
+z_x = sp.diff(z, x)
+integrand = sp.sqrt(1 + z_x**2)
+f = sp.lambdify(x, integrand, 'numpy')
+surface_area = dblquad(lambda y, x: f(x), 0, 1, lambda x: 0, lambda x: 4)[0]
+print("Surface area:", surface_area)
+
+# Visualization
+X = np.linspace(0, 1, 100)
+Y = np.linspace(0, 4, 100)
+X, Y = np.meshgrid(X, Y)
+Z = np.sqrt(4 - X**2)
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(X, Y, Z, cmap='viridis')
+plt.title('Surface plot of z = sqrt(4 - x^2)')
+fig.colorbar(surf)
+plt.show()
+
+A2Q6(c)
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.integrate import dblquad
+from mpl_toolkits.mplot3d import Axes3D
+
+x, y ,r,theta= sp.symbols('x y r theta')
+z=4-x**2-y**2                        #integrating over a disk of radius 1 centered at (1, 0).
+volume=sp.integrate(sp.integrate(z.subs({x:r*sp.cos(theta)+1,y:r*sp.sin(theta)})*r,(r,0,1)),(theta,0,2*np.pi))
+print(f'volume:',volume)   #The extra r comes from the Jacobian determinant when converting to polar coordinates
+# -----------------Visualization---------------------------
+X = np.linspace(0, 2, 100)
+Y = np.linspace(-1, 1, 100)
+X, Y = np.meshgrid(X, Y)
+Z = 4 - X**2 - Y**2
+fig = plt.figure(figsize=(12, 7))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(X, Y, Z, cmap='viridis')
+plt.title('Paraboloid z = 4 - x^2 - y^2 inside the cylinder')
+fig.colorbar(surf)
+# Cylinder visualization
+theta = np.linspace(0, 2 * np.pi, 100)
+x_cyl =  1+np.cos(theta)
+y_cyl = np.sin(theta)
+z_cyl = np.linspace(0, 4, 100)
+X_cyl, Z_cyl = np.meshgrid(x_cyl, z_cyl)
+Y_cyl, _ = np.meshgrid(y_cyl, z_cyl)
+ax.plot_surface(X_cyl, Y_cyl, Z_cyl, color='orange', alpha=0.6)
+plt.show()
+
+A2Q7(a)
+
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
+x, y = sp.symbols('x y')
+T = 10 - 8*x**2 - 2*y**2
+# Double integral for average temperature
+area = (1 - 0) * (2 - 0)
+T_avg = (1 / area) * sp.integrate(sp.integrate(T, (y, 0, 2)), (x, 0, 1))
+print(f"The average temperature is: {T_avg} degrees Celsius")
+#------------------Visualization--------------------------------
+x_vals = np.linspace(0, 1, 100)
+y_vals = np.linspace(0, 2, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+Z = 10 - 8*X**2 - 2*Y**2
+
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.8)
+ax.set_xlabel('x (meters)')
+ax.set_ylabel('y (meters)')
+ax.set_zlabel('Temperature (°C)')
+plt.title('Temperature Distribution on the Plate')
+plt.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
+plt.show()
+
+A2Q7(b)
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+t = sp.symbols('t')
+x = sp.cos(t)
+y = sp.sin(t)
+z = t
+f = x * y + z**3
+dx_dt = sp.diff(x, t)
+dy_dt = sp.diff(y, t)
+dz_dt = sp.diff(z, t)
+ds = sp.sqrt(dx_dt**2 + dy_dt**2 + dz_dt**2)# Arc length: ds=sqrt((dx/dt)^2+(dy/dt)^2+(dz/dt)^2)dt
+# Line integral: ∫(f(x, y, z) * ds) from t=0 to t=pi
+integrand = f * ds
+result = sp.integrate(integrand, (t, 0, sp.pi))
+# Convert symbolic expressions to numpy functions for plotting
+t_vals = np.linspace(0, np.pi, 100)
+x_vals = np.cos(t_vals)
+y_vals = np.sin(t_vals)
+z_vals = t_vals
+# Calculate the midpoint of the curve (at t = pi/2)
+t_mid = np.pi / 2
+x_mid = np.cos(t_mid)
+y_mid = np.sin(t_mid)
+z_mid = t_mid
+# Calculate the direction from the start to the end
+arrow_dx = x_vals[-1] - x_vals[0]
+arrow_dy = y_vals[-1] - y_vals[0]
+arrow_dz = z_vals[-1] - z_vals[0]
+# Plot the helix
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(x_vals, y_vals, z_vals, label='Helix: x=cos(t), y=sin(t), z=t', color='b')
+# Highlight start and end points
+ax.scatter([1, -1], [0, 0], [0, np.pi], color='red', s=50, label='Start (1,0,0) and End (-1,0,pi)')
+# Add a single arrow at the midpoint indicating the direction from start to end
+ax.quiver(x_mid, y_mid, z_mid, 
+          arrow_dx, arrow_dy, arrow_dz, 
+          color='black', length=0.6, normalize=True)
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+plt.title('Helix Curve for Line Integral with Direction Arrow')
+plt.legend()
+plt.show()
+print(f"The value of the line integral is: {result}")
+
+A2Q7(c)
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+R, H, r, theta, z = sp.symbols('R H r theta z')
+rho = r**2 # The density function in cylindrical coordinates is rho = r^2
+mass_integral = sp.integrate(rho * r, (z, -H/2, H/2), (r, 0, R), (theta, 0, 2*sp.pi))
+print(f"Symbolic mass of the cylinder: {mass_integral}")
+#--------------------Visualization-------------------------------------
+# Now calculate it for R = 2 and H = 4
+R_value = 2
+H_value = 4
+mass_numeric = mass_integral.subs({R: R_value, H: H_value})
+# Create a grid for the cylinder
+theta_vals = np.linspace(0, 2 * np.pi, 100)
+r_vals = np.linspace(0, R_value, 100)
+z_vals = np.linspace(-H_value/2, H_value/2, 100)
+theta_vals, r_vals = np.meshgrid(theta_vals, r_vals)
+x_vals = r_vals * np.cos(theta_vals)
+y_vals = r_vals * np.sin(theta_vals)
+z_vals = np.tile(z_vals, (len(r_vals), 1))
+# Calculate the density at each point (x, y) in cylindrical coordinates
+rho_vals = x_vals**2 + y_vals**2
+# Plot the cylinder with the density coloring
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(x_vals, y_vals, z_vals, cmap='inferno',alpha=0.8)
+cbar = fig.colorbar(surf)
+cbar.set_label('Density (rho(x, y))')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title(f'Cylinder with Density Distribution (R={R_value}, H={H_value})')
+plt.show()
+
+A2Q7(d)
+
+import numpy as np
+import sympy as sp
+import matplotlib.pyplot as plt
+
+x, y = sp.symbols('x y')
+f = sp.Matrix([sp.exp(y), x*sp.exp(y)])
+p = f[0, 0]
+q = f[1, 0]
+
+# i) Check if force field is conservative
+py = sp.diff(p, y)
+qx = sp.diff(q, x)
+if sp.simplify(py - qx) == 0:
+    print('The force field is conservative on entire xy plane')
+else:
+    print('The force field is not conservative on entire xy plane')
+
+# ii) Find potential function phi(x,y)
+phi_partial = sp.integrate(p, x)  # Integrate P w.r.t x
+C = sp.Function('C')(y)            # Unknown function of y
+phi = phi_partial + C
+dphi_dy = sp.diff(phi, y)          # Differentiate phi w.r.t y
+eq = sp.Eq(dphi_dy, q)             # Equation dphi/dy = Q
+C_prime = sp.simplify(sp.solve(eq, C.diff(y))[0]) # Solve for C'(y)
+C_func = sp.integrate(C_prime, y)
+phi = phi_partial + C_func
+print('Potential function:')
+sp.pprint(phi)
+
+# iii) Compute work done from (1,0) to (-1,0)
+start = {x: 1, y: 0}
+end = {x: -1, y: 0}
+phi_start = phi.subs(start)
+phi_end = phi.subs(end)
+work_done = phi_end - phi_start
+print(f"Work done by the field: {work_done}")
+
+# -------------- visualization ----------------------
+# Define semicircular path from (1,0) to (-1,0)
+theta = np.linspace(0, np.pi, 100)
+x_vals = np.cos(theta)
+y_vals = np.sin(theta)
+
+# Create lambdified functions for numeric evaluation of Fx, Fy
+Fx_func = sp.lambdify((x, y), p, 'numpy')
+Fy_func = sp.lambdify((x, y), q, 'numpy')
+X, Y = np.meshgrid(np.linspace(-1.5, 1.5, 20), np.linspace(-1, 1, 20))
+# Evaluate vector field on grid
+Fx = Fx_func(X, Y)
+Fy = Fy_func(X, Y)
+
+plt.figure(figsize=(8, 6))
+plt.quiver(X, Y, Fx, Fy, color='blue', alpha=0.5, label='Force Field F(x, y)')
+plt.plot(x_vals, y_vals, 'r--', label='Path C (semicircle)') # Plot semicircular path
+# Add arrows along the path to indicate direction
+arrow_idx = np.linspace(0, len(x_vals) - 2, 8).astype(int)
+for i in arrow_idx:
+    plt.annotate('', xy=(x_vals[i + 1], y_vals[i + 1]), xytext=(x_vals[i], y_vals[i]),
+                 arrowprops=dict(arrowstyle='->', color='black'))
+
+plt.scatter([1, -1], [0, 0], color='black')# Mark start and end points
+plt.text(1, 0, '(1,0)', fontsize=12, verticalalignment='bottom')
+plt.text(-1, 0, '(-1,0)', fontsize=12, verticalalignment='bottom')
+plt.title('Force Field and Semicircular Path with Direction')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+A2Q8(a)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y, z,r,theta= sp.symbols('x y z r theta')
+P = sp.exp(x) - y**3
+Q = sp.cos(y) + x**3
+curl_F = sp.diff(Q, x) - sp.diff(P, y) # curl F = dQ/dx - dP/dy
+# Unit circle area integral so x=1*cos(theta) and y=sin(theta)
+dA = r
+integral = sp.integrate(sp.integrate(curl_F.subs({x: r*sp.cos(theta), y: r*sp.sin(theta)}) * dA, (r, 0, 1)), (theta, 0, 2*sp.pi))
+print("(a) Work done by the force field:", integral)  
+# ---------------- Visualization ----------------
+P_func = sp.lambdify((x, y), P, 'numpy')
+Q_func = sp.lambdify((x, y), Q, 'numpy')
+X, Y = np.meshgrid(np.linspace(-1.5, 1.5, 25), np.linspace(-1.5, 1.5, 25))
+U = P_func(X, Y)
+V = Q_func(X, Y)
+plt.figure(figsize=(8, 8))
+# Plot vector field using quiver
+plt.quiver(X, Y, U, V, color='blue', alpha=0.6, label='Vector field F')
+# Plot unit circle boundary (path C)
+theta_vals = np.linspace(0, 2*np.pi, 200)
+circle_x = np.cos(theta_vals)
+circle_y = np.sin(theta_vals)
+plt.plot(circle_x, circle_y, 'r--', linewidth=2, label='Boundary curve C (unit circle)')
+# Add arrows along the boundary to show orientation
+arrow_idx = np.linspace(0, len(theta_vals)-2, 8).astype(int)
+for i in arrow_idx:
+    plt.annotate('', xy=(circle_x[i+1], circle_y[i+1]), xytext=(circle_x[i], circle_y[i]),
+                 arrowprops=dict(arrowstyle='->', color='black'))
+
+plt.title('Vector Field and Unit Circle Boundary')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axis('equal')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+A2Q8(b)
+
+import sympy as sp  #need verification
+import numpy as np
+import matplotlib.pyplot as plt
+
+rho, phi, theta = sp.symbols('rho phi theta')
+# x = rho*sin(phi)*cos(theta), y = rho*sin(phi)*sin(theta), z = rho*cos(phi)  #rho=1(radius 1)
+x_sph = rho * sp.sin(phi) * sp.cos(theta)# x^2 in spherical coordinates
+jacobian = rho**2 * sp.sin(phi)# Jacobian for spherical coordinates: rho^2 * sin(phi)
+x_squared = (x_sph)**2
+surface_integral = sp.integrate(sp.integrate((x_squared * jacobian).subs(rho, 1), (phi, 0, sp.pi)), (theta, 0, 2*sp.pi))
+print("(b) Surface integral over the sphere using spherical coordinates:", surface_integral) 
+
+#-----------visualization-------------------
+# Create a meshgrid for spherical coordinates
+phi, theta = np.meshgrid(np.linspace(0, np.pi, 50), np.linspace(0, 2*np.pi, 50))
+# Convert to Cartesian coordinates (unit sphere)
+x = np.sin(phi) * np.cos(theta)
+y = np.sin(phi) * np.sin(theta)
+z = np.cos(phi)
+
+fig = plt.figure(figsize=(6, 6))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(x, y, z, color='c', alpha=0.6)
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+ax.set_zlabel("Z-axis")
+ax.set_title("Unit Sphere for Surface Integral Visualization")
+plt.show()
+
+A2Q8(c)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y, z = sp.symbols('x y z')
+F = [x**3, y**3, z**2]
+# Compute divergence
+div_F = sp.diff(F[0], x) + sp.diff(F[1], y) + sp.diff(F[2], z)
+print("Divergence of F:", div_F)
+# Convert to cylindrical coordinates
+r, theta, z = sp.symbols('r theta z')
+div_F_cyl = div_F.subs({x: r*sp.cos(theta), y: r*sp.sin(theta)})
+# Set up volume integral over the cylinder x² + y² ≤ 9, 0 ≤ z ≤ 2
+flux = sp.integrate(sp.integrate(sp.integrate(div_F_cyl * r, (r, 0, 3)), (theta, 0, 2*sp.pi)), (z, 0, 2))
+print("Outward flux of F using Divergence Theorem:", flux)
+
+# Visualization of the enclosed cylindrical region
+fig = plt.figure(figsize=(6, 6))
+ax = fig.add_subplot(111, projection='3d')
+# Cylinder parameters
+theta_vals = np.linspace(0, 2*np.pi, 100)
+z_vals = np.linspace(0, 2, 50)
+theta_vals, z_vals = np.meshgrid(theta_vals, z_vals)
+r_vals = 3  # Radius of cylinder
+# Convert to Cartesian coordinates
+X = r_vals * np.cos(theta_vals)
+Y = r_vals * np.sin(theta_vals)
+Z = z_vals
+
+ax.plot_surface(X, Y, Z, color='c', alpha=0.6)
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+ax.set_zlabel("Z-axis")
+ax.set_title("Enclosed Cylindrical Region")
+plt.show()
+
+A2Q8(d)
+
+import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y, z = sp.symbols('x y z')
+F = [2*z, 3*x, 5*y]
+curl_F = sp.Matrix([
+    sp.diff(F[2], y) - sp.diff(F[1], z),
+    sp.diff(F[0], z) - sp.diff(F[2], x),
+    sp.diff(F[1], x) - sp.diff(F[0], y)
+])
+print("Curl of F:", curl_F)
+# Surface integral over the paraboloid z = 4 - x^2 - y^2
+r, theta = sp.symbols('r theta')
+curl_F_cyl = curl_F.subs({x: r*sp.cos(theta), y: r*sp.sin(theta), z: 4 - r**2})
+# Normal vector to the surface (upward orientation) is simply k-hat: (0,0,1)
+flux = sp.integrate(sp.integrate(curl_F_cyl[2] * r, (r, 0, 2)), (theta, 0, 2*sp.pi))
+print("Surface integral ∫∫ (curl F) ⋅ dS:", flux)
+# Line integral along the circle x^2 + y^2 = 4
+C_param = {x: 2*sp.cos(theta), y: 2*sp.sin(theta), z: 0}
+F_C = sp.Matrix([F[i].subs(C_param) for i in range(3)])
+dr_dt = sp.Matrix([
+    sp.diff(C_param[x], theta), 
+    sp.diff(C_param[y], theta),
+    sp.diff(C_param[z], theta)
+])
+line_integral = sp.integrate(F_C.dot(dr_dt), (theta, 0, 2*sp.pi))
+print("Line integral ∮ F ⋅ dr:", line_integral)
+if flux==line_integral:
+    print('Stoke''s theorem verified')
+else:
+    print('Stoke''s theorem not verified')
+# -------------Visualization of the paraboloid--------------
+fig = plt.figure(figsize=(6, 6))
+ax = fig.add_subplot(111, projection='3d')
+theta_vals = np.linspace(0, 2*np.pi, 100)
+r_vals = np.linspace(0, 2, 50)
+theta_vals, r_vals = np.meshgrid(theta_vals, r_vals)
+Z = 4 - r_vals**2
+X = r_vals * np.cos(theta_vals)
+Y = r_vals * np.sin(theta_vals)
+
+ax.plot_surface(X, Y, Z, color='c', alpha=0.6)
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+ax.set_zlabel("Z-axis")
+ax.set_title("Surface σ: Paraboloid z = 4 - x² - y²")
+plt.show()
+
+
+
+
+
+
+
+ 
